@@ -1,7 +1,7 @@
 import { DifficultyMode, ExperienceLevel } from "@prisma/client";
 import { z } from "zod";
 export const GenerateRequestSchema = z.object({
-  cv: z.string().min(50).max(8000),
+  cv: z.string().max(8000).optional().default(""),
   jobDescription: z.string().min(20).max(3000),
   experienceLevel: z.nativeEnum(ExperienceLevel),
   difficultyMode: z.nativeEnum(DifficultyMode),

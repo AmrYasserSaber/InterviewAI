@@ -42,9 +42,12 @@ export function InterviewForm() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-gutter">
         <div className="space-y-2 flex flex-col">
           <Label icon="description" htmlFor="cv-input">
-            Paste Your CV
+            Paste Your CV (Optional)
           </Label>
           <CvUpload value={cv} onChange={setCv} />
+          <p className="font-body-sm text-body-sm text-on-surface-variant">
+            You can skip this and generate from the job description only.
+          </p>
         </div>
         <div className="space-y-2 flex flex-col">
           <Label icon="work" htmlFor="jd-input">
@@ -94,7 +97,7 @@ export function InterviewForm() {
               <div className="w-2 h-2 bg-primary-fixed-dim rounded-full animate-pulse [animation-delay:150ms]" />
             </div>
             <p className="font-body-sm text-body-sm font-medium tracking-wide">
-              Analyzing your CV and generating tailored interview questions…
+              Generating tailored interview questions…
             </p>
           </div>
         ) : null}

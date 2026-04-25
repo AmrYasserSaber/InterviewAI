@@ -14,6 +14,7 @@ type SearchParams = Promise<{ callbackUrl?: string }>;
 export default async function SignInPage({ searchParams }: { searchParams: SearchParams }) {
   const session = await auth();
   const { callbackUrl } = await searchParams;
+  const hasGoogleAuth = Boolean(process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET);
   if (session?.user) {
     redirect(callbackUrl ?? "/dashboard");
   }
@@ -21,13 +22,14 @@ export default async function SignInPage({ searchParams }: { searchParams: Searc
 
   return (
     <AuthCard title="Welcome back" subtitle="Sign in to save and revisit your interview sessions.">
-      <GoogleSignInButton callbackUrl={callbackUrl ?? "/dashboard"} />
-
-      <div className="flex items-center gap-3 text-on-surface-variant">
-        <div className="h-px flex-1 bg-outline-variant/50" />
-        <span className="font-label-caps text-label-caps uppercase">or</span>
-        <div className="h-px flex-1 bg-outline-variant/50" />
-      </div>
+      {hasGoogleAuth ? <GoogleSignInButton callbackUrl={callbackUrl ?? "/dashboard"} /> : null}
+      {hasGoogleAuth ? (
+        <div className="flex items-center gap-3 text-on-surface-variant">
+          <div className="h-px flex-1 bg-outline-variant/50" />
+          <span className="font-label-caps text-label-caps uppercase">or</span>
+          <div className="h-px flex-1 bg-outline-variant/50" />
+        </div>
+      ) : null}
 
       <SignInForm />
 

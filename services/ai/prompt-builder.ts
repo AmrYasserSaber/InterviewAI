@@ -7,5 +7,6 @@ export function buildUserPrompt(params: {
   experienceLevel: ExperienceLevel;
   difficultyMode: DifficultyMode;
 }) {
-  return `DIFFICULTY:${params.difficultyMode}\nLEVEL:${params.experienceLevel}\n<CANDIDATE_CV>${params.cv}</CANDIDATE_CV>\n<JOB_DESCRIPTION>${params.jobDescription}</JOB_DESCRIPTION>`;
+  const cvSection = params.cv.trim().length > 0 ? params.cv : "Not provided";
+  return `DIFFICULTY:${params.difficultyMode}\nLEVEL:${params.experienceLevel}\n<CANDIDATE_CV>${cvSection}</CANDIDATE_CV>\n<JOB_DESCRIPTION>${params.jobDescription}</JOB_DESCRIPTION>`;
 }

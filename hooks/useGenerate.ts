@@ -10,7 +10,10 @@ export function useGenerate() {
     setError(null);
     try {
       const res = await fetch("/api/generate-questions", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-      if (!res.ok) throw new Error("Generation failed");
+      if (!res.ok) {
+        const errorBody = (await res.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(errorBody?.error ?? "Generation failed");
+      }
       const data = (await res.json()) as { requestId: string };
       router.push(`/results/${data.requestId}`);
     } catch (e) {

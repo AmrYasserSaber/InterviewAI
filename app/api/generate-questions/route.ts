@@ -8,7 +8,11 @@ export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
   const parsed = GenerateRequestSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+    const fieldErrors = parsed.error.flatten().fieldErrors;
+    const firstFieldError =
+      Object.values(fieldErrors).flat().find((msg): msg is string => typeof msg === "string") ??
+      "Invalid request";
+    return NextResponse.json({ error: firstFieldError, details: fieldErrors }, { status: 400 });
   }
 
   const ip = (req.headers.get("x-forwarded-for") ?? "").split(",")[0]?.trim() || "unknown";

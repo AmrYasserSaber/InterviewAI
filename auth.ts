@@ -15,15 +15,51 @@ const CredentialsSchema = z.object({
 export const authConfig: NextAuthConfig = {
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt" },
+  trustHost: process.env.AUTH_TRUST_HOST === "true",
   pages: {
     signIn: "/sign-in",
   },
+  cookies: {
+    pkceCodeVerifier: {
+      name: "interviewai.pkce.code_verifier",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 60 * 15,
+      },
+    },
+    state: {
+      name: "interviewai.oauth.state",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 60 * 15,
+      },
+    },
+    nonce: {
+      name: "interviewai.oauth.nonce",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
+  },
   providers: [
-    Google({
-      clientId: process.env.AUTH_GOOGLE_ID,
-      clientSecret: process.env.AUTH_GOOGLE_SECRET,
-      allowDangerousEmailAccountLinking: true,
-    }),
+    ...(process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET
+      ? [
+          Google({
+            clientId: process.env.AUTH_GOOGLE_ID,
+            clientSecret: process.env.AUTH_GOOGLE_SECRET,
+            allowDangerousEmailAccountLinking: true,
+          }),
+        ]
+      : []),
     Credentials({
       name: "Email and password",
       credentials: {

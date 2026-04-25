@@ -67,7 +67,7 @@ export function CvUpload({ value, onChange, placeholder, minHeight = 200 }: Prop
           <Icon name="upload_file" />
           {isUploading ? "Uploading..." : "Upload CV (PDF/DOCX)"}
         </Button>
-        <p className="text-body-sm text-on-surface-variant">or paste your CV text below</p>
+        <p className="text-body-sm text-on-surface-variant">optional: upload or paste your CV text below</p>
       </div>
       {uploadError ? (
         <p className="font-body-sm text-body-sm text-error" role="alert">
@@ -77,7 +77,7 @@ export function CvUpload({ value, onChange, placeholder, minHeight = 200 }: Prop
       <Textarea
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        placeholder={placeholder ?? "Paste your full resume, LinkedIn summary, or relevant experience details here..."}
+        placeholder={placeholder ?? "Optional: paste your full resume, LinkedIn summary, or relevant experience details here..."}
         style={{ minHeight: `${minHeight}px` }}
         rows={10}
       />
