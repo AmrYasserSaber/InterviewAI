@@ -1,0 +1,154 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ExperienceLevel {
+  JUNIOR
+  MID
+  SENIOR
+  LEAD
+  PRINCIPAL
+}
+
+enum DifficultyMode {
+  EASY
+  MEDIUM
+  HARD
+  EXPERT
+  FAANG
+}
+
+enum RequestStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum PaymentStatus {
+  CREATED
+  APPROVED
+  CAPTURED
+  FAILED
+  REFUNDED
+}
+
+model InterviewRequest {
+  id               String          @id @default(cuid())
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  userId           String?
+  user             User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
+  sessionId        String?
+  ipAddress        String?
+  cvHash           String
+  jdHash           String
+  inputHash        String
+  experienceLevel  ExperienceLevel
+  difficultyMode   DifficultyMode
+  status           RequestStatus   @default(PENDING)
+  errorMessage     String?
+  promptTokens     Int?
+  completionTokens Int?
+  questions        Question[]
+  payment          Payment?
+
+  @@index([inputHash])
+  @@index([sessionId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+// ─── Auth.js models ───────────────────────────────────────────────────────────
+
+model User {
+  id             String             @id @default(cuid())
+  name           String?
+  email          String             @unique
+  emailVerified  DateTime?
+  image          String?
+  hashedPassword String?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  accounts       Account[]
+  sessions       Session[]
+  requests       InterviewRequest[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expires      DateTime
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Question {
+  id        String           @id @default(cuid())
+  createdAt DateTime         @default(now())
+  requestId String
+  request   InterviewRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  position  Int
+  content   String           @db.Text
+  isLocked  Boolean          @default(true)
+
+  @@unique([requestId, position])
+  @@index([requestId])
+}
+
+model Payment {
+  id             String           @id @default(cuid())
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  requestId      String           @unique
+  request        InterviewRequest @relation(fields: [requestId], references: [id])
+  orderId        String           @unique
+  captureId      String?          @unique
+  amountUSD      Decimal          @db.Decimal(10, 2)
+  currency       String           @default("USD")
+  status         PaymentStatus    @default(CREATED)
+  webhookEventId String?          @unique
+  capturedAt     DateTime?
+
+  @@index([orderId])
+  @@index([status])
+}

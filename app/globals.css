@@ -1,0 +1,220 @@
+@import "tailwindcss";
+
+/* === Midnight Matrix design tokens === */
+@theme {
+  /* Color palette */
+  --color-background: #0b141c;
+  --color-canvas: #121417;
+  --color-surface: #0b141c;
+  --color-surface-dim: #0b141c;
+  --color-surface-bright: #313a43;
+  --color-surface-variant: #2c363e;
+  --color-surface-container-lowest: #060f17;
+  --color-surface-container-low: #131d24;
+  --color-surface-container: #172128;
+  --color-surface-container-high: #212b33;
+  --color-surface-container-highest: #2c363e;
+  --color-on-background: #dae4ef;
+  --color-on-surface: #dae4ef;
+  --color-on-surface-variant: #b9caca;
+  --color-inverse-surface: #dae4ef;
+  --color-inverse-on-surface: #28313a;
+  --color-outline: #849495;
+  --color-outline-variant: #3a494a;
+  --color-surface-tint: #00dce5;
+  --color-primary: #e9feff;
+  --color-on-primary: #003739;
+  --color-primary-container: #00f5ff;
+  --color-primary-fixed: #63f7ff;
+  --color-primary-fixed-dim: #00dce5;
+  --color-on-primary-container: #006c71;
+  --color-inverse-primary: #00696e;
+  --color-secondary: #c3c6cd;
+  --color-on-secondary: #2d3136;
+  --color-secondary-container: #43474d;
+  --color-on-secondary-container: #b2b5bc;
+  --color-tertiary: #fafafc;
+  --color-on-tertiary: #2f3033;
+  --color-tertiary-container: #dddde0;
+  --color-on-tertiary-container: #606164;
+  --color-error: #ffb4ab;
+  --color-on-error: #690005;
+  --color-error-container: #93000a;
+  --color-on-error-container: #ffdad6;
+
+  /* Font families */
+  --font-body-base: "Inter", "ui-sans-serif", "system-ui", "sans-serif";
+  --font-body-sm: "Inter", "ui-sans-serif", "system-ui", "sans-serif";
+  --font-display-lg: "Space Grotesk", "ui-sans-serif", "system-ui", "sans-serif";
+  --font-headline-md: "Space Grotesk", "ui-sans-serif", "system-ui", "sans-serif";
+  --font-label-caps: "Space Grotesk", "ui-sans-serif", "system-ui", "sans-serif";
+
+  /* Font sizes */
+  --text-display-lg: 48px;
+  --text-display-lg--line-height: 1.1;
+  --text-display-lg--letter-spacing: -0.02em;
+  --text-display-lg--font-weight: 700;
+
+  --text-headline-md: 24px;
+  --text-headline-md--line-height: 1.2;
+  --text-headline-md--letter-spacing: -0.01em;
+  --text-headline-md--font-weight: 500;
+
+  --text-body-base: 16px;
+  --text-body-base--line-height: 1.6;
+  --text-body-base--font-weight: 400;
+
+  --text-body-sm: 14px;
+  --text-body-sm--line-height: 1.5;
+  --text-body-sm--font-weight: 400;
+
+  --text-label-caps: 12px;
+  --text-label-caps--line-height: 1;
+  --text-label-caps--letter-spacing: 0.1em;
+  --text-label-caps--font-weight: 600;
+
+  /* Spacing tokens */
+  --spacing-unit: 8px;
+  --spacing-gutter: 24px;
+  --spacing-card-padding: 32px;
+  --spacing-margin-desktop: 40px;
+
+  /* Radii */
+  --radius-DEFAULT: 0.25rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-full: 9999px;
+
+  /* Neumorphic + glow shadows */
+  --shadow-neumorphic: 12px 12px 24px rgba(0, 0, 0, 0.5), -4px -4px 12px rgba(255, 255, 255, 0.05);
+  --shadow-neumorphic-soft: 8px 8px 16px rgba(0, 0, 0, 0.5), -2px -2px 8px rgba(255, 255, 255, 0.05);
+  --shadow-neumorphic-inset: inset 8px 8px 16px rgba(0, 0, 0, 0.6), inset -4px -4px 8px rgba(255, 255, 255, 0.05);
+  --shadow-neumorphic-inset-soft: inset 4px 4px 8px rgba(0, 0, 0, 0.6), inset -2px -2px 6px rgba(255, 255, 255, 0.03);
+  --shadow-glow: 0 0 15px rgba(0, 245, 255, 0.5);
+  --shadow-glow-lg: 0 0 25px rgba(0, 245, 255, 0.5);
+}
+
+/* Base reset for the dark canvas */
+html {
+  background-color: var(--color-canvas);
+  color: var(--color-on-background);
+}
+
+body {
+  background-color: var(--color-canvas);
+  color: var(--color-on-background);
+  font-family: var(--font-body-base);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background-color: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+}
+
+/* Custom scrollbar to match dark palette */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-surface-dim);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-surface-variant);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-outline-variant);
+}
+
+/* === Reusable neumorphic utilities === */
+.neu-raised {
+  background-color: var(--color-canvas);
+  box-shadow: var(--shadow-neumorphic-soft);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+.neu-raised-lg {
+  background-color: var(--color-surface-container);
+  box-shadow: var(--shadow-neumorphic);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+.neu-recessed {
+  background-color: var(--color-surface-dim);
+  box-shadow: var(--shadow-neumorphic-inset-soft);
+  border: 1px solid transparent;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.neu-recessed:focus,
+.neu-recessed:focus-visible,
+.neu-recessed:focus-within {
+  border-color: var(--color-primary-fixed-dim);
+  outline: none;
+  box-shadow:
+    var(--shadow-neumorphic-inset-soft),
+    0 0 10px rgba(0, 220, 229, 0.2);
+}
+
+/* Primary neon button */
+.btn-neon {
+  background-color: var(--color-canvas);
+  border: 1px solid var(--color-primary-container);
+  color: var(--color-primary);
+  box-shadow:
+    0 0 15px rgba(0, 245, 255, 0.3),
+    inset 0 0 10px rgba(0, 245, 255, 0.1);
+  transition: all 0.3s ease;
+}
+.btn-neon:hover {
+  box-shadow:
+    0 0 25px rgba(0, 245, 255, 0.5),
+    inset 0 0 15px rgba(0, 245, 255, 0.2);
+}
+.btn-neon:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: 0 0 6px rgba(0, 245, 255, 0.15);
+}
+
+.btn-ghost {
+  color: var(--color-on-surface-variant);
+  transition: color 0.2s ease;
+}
+.btn-ghost:hover {
+  color: var(--color-primary-fixed-dim);
+}
+
+/* Glow helpers */
+.text-glow {
+  text-shadow: 0 0 8px rgba(0, 245, 255, 0.5);
+}
+.text-glow-soft {
+  text-shadow: 0 0 12px rgba(0, 245, 255, 0.3);
+}
+
+/* Material Symbols default variation */
+.material-symbols-outlined {
+  font-family: "Material Symbols Outlined";
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: "liga";
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
+}
+.material-symbols-outlined.filled {
+  font-variation-settings:
+    "FILL" 1,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
+}
