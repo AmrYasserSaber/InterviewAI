@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { computeInputHash, sha256 } from "@/lib/hash";
 import { buildSystemPrompt, buildUserPrompt } from "@/services/ai/prompt-builder";
 import { callOpenAI } from "@/services/ai/openai-client";
+import { assertInterviewScope } from "@/services/ai/guardrails";
 import { AIOutputSchema } from "@/services/ai/schema";
 import { sanitizeInput } from "@/services/ai/sanitizer";
 import { CV_MAX_LENGTH, FREE_QUESTIONS_COUNT, JD_MAX_LENGTH } from "@/utils/constants";
@@ -19,6 +20,7 @@ type Input = {
 export async function generateQuestions(input: Input) {
   const cv = sanitizeInput(input.cv, CV_MAX_LENGTH);
   const jd = sanitizeInput(input.jobDescription, JD_MAX_LENGTH);
+  assertInterviewScope({ cv, jobDescription: jd });
   const inputHash = computeInputHash(cv, jd, input.experienceLevel, input.difficultyMode);
 
   // Cache only within the same ownership scope: a user sees their own prior
