@@ -1,12 +1,34 @@
-const BASE_URL = process.env.NODE_ENV === "production" ? "https://api-m.paypal.com" : "https://api-m.sandbox.paypal.com";
+type PayPalEnvironment = "sandbox" | "live";
+
+function resolvePayPalEnvironment(): PayPalEnvironment {
+  const mode = (process.env.PAYPAL_ENV ?? "auto").toLowerCase();
+  if (mode === "sandbox" || mode === "live") return mode;
+  if (mode === "auto") return process.env.NODE_ENV === "production" ? "live" : "sandbox";
+  throw new Error(`Invalid PAYPAL_ENV value "${process.env.PAYPAL_ENV}". Use "auto", "sandbox", or "live".`);
+}
+
+const PAYPAL_ENV = resolvePayPalEnvironment();
+const BASE_URL = PAYPAL_ENV === "live" ? "https://api-m.paypal.com" : "https://api-m.sandbox.paypal.com";
+
+function assertPayPalConfig() {
+  if (!process.env.PAYPAL_CLIENT_ID || !process.env.PAYPAL_CLIENT_SECRET) {
+    throw new Error("PayPal configuration is missing. Set PAYPAL_CLIENT_ID and PAYPAL_CLIENT_SECRET.");
+  }
+}
+
 async function token() {
+  assertPayPalConfig();
   const credentials = Buffer.from(`${process.env.PAYPAL_CLIENT_ID}:${process.env.PAYPAL_CLIENT_SECRET}`).toString("base64");
   const res = await fetch(`${BASE_URL}/v1/oauth2/token`, {
     method: "POST",
     headers: { Authorization: `Basic ${credentials}`, "Content-Type": "application/x-www-form-urlencoded" },
     body: "grant_type=client_credentials",
   });
-  const data = (await res.json()) as { access_token: string };
+  const data = (await res.json()) as { access_token?: string; error?: string; error_description?: string };
+  if (!res.ok || !data.access_token) {
+    const reason = data.error_description ?? data.error ?? "Failed to authenticate with PayPal";
+    throw new Error(`[${PAYPAL_ENV}] ${reason}`);
+  }
   return data.access_token;
 }
 export async function createPayPalOrder(requestId: string) {
@@ -30,9 +52,15 @@ export async function createPayPalOrder(requestId: string) {
       },
     }),
   });
-  const order = (await res.json()) as { id?: string; message?: string; links?: Array<{ rel: string; href: string }> };
+  const order = (await res.json()) as {
+    id?: string;
+    message?: string;
+    details?: Array<{ issue?: string; description?: string }>;
+    links?: Array<{ rel: string; href: string }>;
+  };
   if (!res.ok || !order.id) {
-    throw new Error(order.message ?? "PayPal order creation failed");
+    const reason = order.details?.[0]?.description ?? order.message ?? "PayPal order creation failed";
+    throw new Error(`[${PAYPAL_ENV}] ${reason}`);
   }
   const approveUrl = order.links?.find((l) => l.rel === "approve")?.href ?? "";
   if (!approveUrl) {
@@ -77,9 +105,13 @@ export async function capturePayPalOrder(orderId: string) {
       }
     }
     const description = data.details?.[0]?.description;
-    throw new Error(description ?? data.message ?? issue ?? "PayPal capture request failed");
+    throw new Error(`[${PAYPAL_ENV}] ${description ?? data.message ?? issue ?? "PayPal capture request failed"}`);
   }
   return { captureId: data.purchase_units?.[0]?.payments?.captures?.[0]?.id ?? "", status: data.status ?? "UNKNOWN" };
+}
+
+export function getPayPalEnvironment() {
+  return PAYPAL_ENV;
 }
 export async function verifyPayPalSignature(payload: Record<string, unknown>) {
   const t = await token();

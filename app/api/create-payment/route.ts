@@ -2,7 +2,7 @@ import { Prisma } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUserId } from "@/lib/current-user";
 import { prisma } from "@/lib/db";
-import { createPayPalOrder } from "@/services/payments/paypal";
+import { createPayPalOrder, getPayPalEnvironment } from "@/services/payments/paypal";
 import { CreatePaymentSchema } from "@/utils/validators";
 
 export async function POST(req: NextRequest) {
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
     order = await createPayPalOrder(parsed.data.requestId);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unable to create PayPal order";
-    return NextResponse.json({ error: message }, { status: 502 });
+    return NextResponse.json({ error: message, paypalEnv: getPayPalEnvironment() }, { status: 502 });
   }
   await prisma.payment.upsert({
     where: { requestId: parsed.data.requestId },
